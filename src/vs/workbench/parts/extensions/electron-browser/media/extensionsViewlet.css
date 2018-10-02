@@ -188,6 +188,15 @@
 	opacity: 1;
 }
 
+.extensions-viewlet > .extensions .extensions-list.screen-reader-optimized .extension > .details > .footer > .monaco-action-bar {
+	display: none;
+}
+
+.extensions-viewlet > .extensions .extensions-list.screen-reader-optimized .focused .extension > .details > .footer > .monaco-action-bar,
+.extensions-viewlet > .extensions .extensions-list.screen-reader-optimized .selected .extension > .details > .footer > .monaco-action-bar {
+	display: block;
+}
+
 .extensions-viewlet > .extensions .extension > .details > .footer > .monaco-action-bar > .actions-container {
 	flex-wrap: wrap-reverse;
 }

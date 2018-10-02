@@ -42,6 +42,8 @@ import { distinct } from 'vs/base/common/arrays';
 import { IExperimentService, IExperiment, ExperimentActionType } from 'vs/workbench/parts/experiments/node/experimentService';
 import { alert } from 'vs/base/browser/ui/aria/aria';
 import { IListContextMenuEvent } from 'vs/base/browser/ui/list/list';
+import { getAccessibilitySupport, onDidChangeAccessibilitySupport } from 'vs/base/browser/browser';
+import { AccessibilitySupport } from 'vs/base/common/platform';
 
 export class ExtensionsListView extends ViewletPanel {
 
@@ -87,6 +89,14 @@ export class ExtensionsListView extends ViewletPanel {
 
 	renderBody(container: HTMLElement): void {
 		this.extensionsList = append(container, $('.extensions-list'));
+		this.updateScreenReaderSupport(this.extensionsList);
+		this.disposables.push(onDidChangeAccessibilitySupport(() => this.updateScreenReaderSupport(this.extensionsList)));
+		this.disposables.push(this.configurationService.onDidChangeConfiguration(e => {
+			if (e.affectsConfiguration('editor.accessibilitySupport')) {
+				this.updateScreenReaderSupport(this.extensionsList);
+			}
+		}));
+
 		this.messageBox = append(container, $('.message'));
 		const delegate = new Delegate();
 		const renderer = this.instantiationService.createInstance(Renderer);
@@ -192,6 +202,12 @@ export class ExtensionsListView extends ViewletPanel {
 				});
 			}
 		}
+	}
+
+	private updateScreenReaderSupport(listElement: HTMLElement) {
+		const detected = getAccessibilitySupport() === AccessibilitySupport.Enabled;
+		const config = this.configurationService.getValue('editor.accessibilitySupport');
+		toggleClass(listElement, 'screen-reader-optimized', config === 'on' || (config === 'auto' && detected));
 	}
 
 	private async queryLocal(query: Query, options: IQueryOptions): Promise<IPagedModel<IExtension>> {
